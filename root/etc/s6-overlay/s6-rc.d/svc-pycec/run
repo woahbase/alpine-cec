@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+PYCEC_HOST="${PYCEC_HOST:-0.0.0.0}";
+PYCEC_PORT="${PYCEC_PORT:-9526}";
+PYCEC_ARGS="${PYCEC_ARGS:- -i $PYCEC_HOST -p $PYCEC_PORT}";
+
+s6-setuidgid ${S6_USER:-alpine} \
+exec \
+    python3 -m pycec \
+    ${PYCEC_ARGS} \
+    ;
