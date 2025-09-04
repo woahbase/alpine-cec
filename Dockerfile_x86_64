@@ -78,6 +78,6 @@ HEALTHCHECK \
     --start-period=5m \
     --timeout=10s \
     CMD \
-    nc -z -i 1 -w 1 localhost 9526 || exit 1
+    nc -z -i 1 -w 1 localhost ${PYCEC_PORT:-9526} || exit 1
 #
 ENTRYPOINT ["/init"]

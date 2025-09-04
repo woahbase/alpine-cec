@@ -1,11 +1,24 @@
 #!/usr/bin/with-contenv bash
 set -e
 
+usercmd () { if [ "X${EUID}" != "X0" ]; then ${1} "${@:2}"; else s6-setuidgid ${PUID:-1000}:${PGID:-1000} ${1} "${@:2}"; fi; }
+
 PYCEC_HOST="${PYCEC_HOST:-0.0.0.0}";
 PYCEC_PORT="${PYCEC_PORT:-9526}";
 PYCEC_ARGS="${PYCEC_ARGS:- -i $PYCEC_HOST -p $PYCEC_PORT}";
 
-s6-setuidgid ${S6_USER:-alpine} \
+if [ -n "${WAIT_FOR_HDMI_CONNECT}" ];
+then
+    WAIT_SEC="${WAIT_SEC:-10}";
+    echo 'Waiting for HDMI connection.';
+    until \
+      cat /sys/class/drm/card*/*HDMI*/status 2>/dev/null \
+      | grep -q '^connected';
+      do echo -n ' .'; sleep ${WAIT_SEC}; done;
+    echo 'Connected.';
+fi;
+
+usercmd \
 exec \
     python3 -m pycec \
     ${PYCEC_ARGS} \
